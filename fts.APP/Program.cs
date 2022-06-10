@@ -1,9 +1,4 @@
-﻿using fts.Shared;
-using System.Diagnostics;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.AppService;
-
-namespace fts.APP
+﻿namespace fts.APP
 {
     internal class Program
     {

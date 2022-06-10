@@ -1,11 +1,7 @@
 ﻿using fts.Shared;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
@@ -48,7 +44,7 @@ namespace fts.APP
                 _listener.Prefixes.Add("http://localhost:8080/");
                 _listener.Start();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Close();
                 return;
@@ -82,7 +78,7 @@ namespace fts.APP
                         using var writer = new StreamWriter(responseStream, response?.ContentEncoding ?? Encoding.UTF8);
                         writer.Write(massage.Message[Constant.ResponseMessage]);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         Close();
                         return;
@@ -96,7 +92,7 @@ namespace fts.APP
             Debug.WriteLine($"Service Closed.");
             _listener.Close();
             _connection.Dispose();
-            _source.TrySetResult();
+            _ = _source.TrySetResult();
         }
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)

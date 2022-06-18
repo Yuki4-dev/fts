@@ -1,6 +1,8 @@
 ﻿using fts.Shared;
 using System;
+using System.Diagnostics;
 using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください
@@ -18,16 +20,21 @@ namespace fts.UWP
             App.RequestReceived += App_RequestReceived;
         }
 
-        private async void App_RequestReceived(Windows.ApplicationModel.AppService.AppServiceConnection sender, Windows.ApplicationModel.AppService.AppServiceRequestReceivedEventArgs args)
+        private void App_RequestReceived(Windows.ApplicationModel.AppService.AppServiceConnection sender, Windows.ApplicationModel.AppService.AppServiceRequestReceivedEventArgs args)
         {
-            var message = args.Request.Message[Constant.RequestMessage];
-            var valueset = new ValueSet
+            var task = Dispatcher.TryRunIdleAsync((e) =>
             {
-                { Constant.ResponseMessage, "OK" }
-            };
-            _ = args.Request.SendResponseAsync(valueset);
+                var valueset = new ValueSet
+                {
+                    { Constant.ResponseMessage, ResponseTextBox.Text }
+                };
+                _ = args.Request.SendResponseAsync(valueset);
 
-            await Dispatcher.RunIdleAsync((e) => RequestTextBox.Text += $"{DateTime.Now} : {message} \r\n");
+                var message = args.Request.Message[Constant.RequestMessage];
+                RequestTextBox.Text += $"{DateTime.Now} : {message} \r\n";
+            });
+
+            task.AsTask().Wait();
         }
     }
 }

@@ -28,6 +28,11 @@ namespace fts.APP
             StartAsync();
         }
 
+        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            Close();
+        }
+
         private async void StartAsync()
         {
             var status = await _connection.OpenAsync();
@@ -56,35 +61,41 @@ namespace fts.APP
                 {
                     try
                     {
-                        var context = await _listener.GetContextAsync();
-                        var request = context.Request;
-                        string requestBody = string.Empty;
-                        if (request.HasEntityBody)
-                        {
-                            using var requestStream = request.InputStream;
-                            using var reader = new StreamReader(requestStream, request.ContentEncoding);
-                            requestBody = reader.ReadToEnd();
-                        }
-
-                        var valueset = new ValueSet
-                        {
-                            { Constant.RequestMessage, requestBody }
-                        };
-                        var massage = await _connection.SendMessageAsync(valueset);
-
-                        using var response = context.Response;
-                        response.StatusCode = 200;
-                        using var responseStream = response.OutputStream;
-                        using var writer = new StreamWriter(responseStream, response?.ContentEncoding ?? Encoding.UTF8);
-                        writer.Write(massage.Message[Constant.ResponseMessage]);
+                        await Server();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine($"Throw Exception.{ex.Message}");
                         Close();
                         return;
                     }
                 }
             });
+        }
+
+        private async Task Server()
+        {
+            var context = await _listener.GetContextAsync();
+            var request = context.Request;
+            string requestBody = string.Empty;
+            if (request.HasEntityBody)
+            {
+                using var requestStream = request.InputStream;
+                using var reader = new StreamReader(requestStream, request.ContentEncoding);
+                requestBody = reader.ReadToEnd();
+            }
+
+            var valueset = new ValueSet
+            {
+                { Constant.RequestMessage, requestBody }
+            };
+            var massage = await _connection.SendMessageAsync(valueset);
+
+            using var response = context.Response;
+            response.StatusCode = 200;
+            using var responseStream = response.OutputStream;
+            using var writer = new StreamWriter(responseStream, response?.ContentEncoding ?? Encoding.UTF8);
+            writer.Write(massage.Message[Constant.ResponseMessage]);
         }
 
         public void Close()
@@ -93,11 +104,6 @@ namespace fts.APP
             _listener.Close();
             _connection.Dispose();
             _ = _source.TrySetResult();
-        }
-
-        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            Close();
         }
 
         public Task WaitClosed()

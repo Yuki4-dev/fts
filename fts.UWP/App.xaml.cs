@@ -16,6 +16,9 @@ namespace fts.UWP
     {
         private BackgroundTaskDeferral appServiceDeferral = null;
 
+        /// <summary>
+        /// 外部のAppServiceからのメッセージ受信イベント
+        /// </summary>
         public static event Action<AppServiceConnection, AppServiceRequestReceivedEventArgs> RequestReceived;
 
         /// <summary>

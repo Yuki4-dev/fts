@@ -32,9 +32,9 @@ namespace fts.UWP
 
                 var message = args.Request.Message[Constant.RequestMessage];
                 RequestTextBox.Text += $"{DateTime.Now} : {message} \r\n";
-            });
+            }).AsTask();
 
-            task.AsTask().Wait();
+            task.Wait();
         }
     }
 }

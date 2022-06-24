@@ -65,7 +65,7 @@ namespace fts.APP
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Throw Exception.{ex.Message}");
+                        _ = SendMessageAsync(ex.Message);
                         Close();
                         return;
                     }
@@ -85,17 +85,23 @@ namespace fts.APP
                 requestBody = reader.ReadToEnd();
             }
 
-            var valueset = new ValueSet
-            {
-                { Constant.RequestMessage, requestBody }
-            };
-            var massage = await _connection.SendMessageAsync(valueset);
+            var massage = await SendMessageAsync(requestBody);
 
             using var response = context.Response;
             response.StatusCode = 200;
             using var responseStream = response.OutputStream;
             using var writer = new StreamWriter(responseStream, response?.ContentEncoding ?? Encoding.UTF8);
-            writer.Write(massage.Message[Constant.ResponseMessage]);
+            writer.Write(massage);
+        }
+
+        private async Task<string> SendMessageAsync(string message)
+        {
+            var valueset = new ValueSet
+            {
+                { Constant.RequestMessage, message }
+            };
+            var massage = await _connection.SendMessageAsync(valueset);
+            return massage.Message[Constant.ResponseMessage]?.ToString() ?? string.Empty;
         }
 
         public void Close()

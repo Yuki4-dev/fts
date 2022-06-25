@@ -46,7 +46,22 @@ namespace fts.UWP
                 args.TaskInstance.Canceled += OnTaskCanceled;
 
                 var details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
-                details.AppServiceConnection.RequestReceived += (s, e) => RequestReceived?.Invoke(s, e);
+                var appService = details.AppServiceConnection;
+                appService.RequestReceived += AppService_RequestReceived;
+                appService.ServiceClosed += AppService_ServiceClosed;
+            }
+        }
+
+        private void AppService_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
+        {
+            RequestReceived?.Invoke(sender, args);
+        }
+
+        private void AppService_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            if (appServiceDeferral != null)
+            {
+                appServiceDeferral.Complete();
             }
         }
 
@@ -57,7 +72,6 @@ namespace fts.UWP
                 appServiceDeferral.Complete();
             }
         }
-
 
         /// <summary>
         /// アプリケーションがエンド ユーザーによって正常に起動されたときに呼び出されます。他のエントリ ポイントは、

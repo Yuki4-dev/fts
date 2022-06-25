@@ -1,8 +1,6 @@
 ﻿using fts.Shared;
 using System;
-using System.Diagnostics;
 using Windows.Foundation.Collections;
-using Windows.System;
 using Windows.UI.Xaml.Controls;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x411 を参照してください

@@ -40,12 +40,11 @@ namespace fts.UWP
         protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
         {
             base.OnBackgroundActivated(args);
-            if (args.TaskInstance.TriggerDetails is AppServiceTriggerDetails)
+            if (args.TaskInstance.TriggerDetails is AppServiceTriggerDetails details)
             {
                 appServiceDeferral = args.TaskInstance.GetDeferral();
                 args.TaskInstance.Canceled += OnTaskCanceled;
 
-                var details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
                 var appService = details.AppServiceConnection;
                 appService.RequestReceived += AppService_RequestReceived;
                 appService.ServiceClosed += AppService_ServiceClosed;
